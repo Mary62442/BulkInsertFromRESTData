@@ -1,3 +1,4 @@
 mongoconnection.js
 node_modules
 *.log
+.vscode

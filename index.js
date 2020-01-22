@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const server = http.Server(app);
 const redis = require("redis"); // redis already installed on local machine
 const { Worker } = require('worker_threads');
-const redisChunkSize = 10000;
+const redisChunkSize = 5000;
 
 const runService = (workerData)=> {
   return new Promise((resolve, reject) => {
@@ -59,8 +59,9 @@ app.get("/help",(req,res,next ) => {res.json({help:"Thanks for inquiring. please
 
 app.post("/setscoreinlist",(req,res,next ) => {
   const score = req.body.scoredata;
-  score.uniqueId = uuidv4(); ;
-  redisClient.lpush("scorelist",JSON.stringify(score));
+  score.uniqueId = uuidv4(); 
+  score.date = new Date().toISOString();
+  redisClient.rpush("scorelist",JSON.stringify(score));
   redisClient.llen("scorelist",(err,number)=> {
      if(number === redisChunkSize) runWorker().catch(err => console.error(err))
      res.json({ok:true,len: number });

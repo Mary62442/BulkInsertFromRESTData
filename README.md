@@ -15,3 +15,5 @@ I have successfully tested this server application using Apache JMeter v5.2.1 wi
 
 The results are promising considering the workload on a single machine and they become stable and effective when we expand in the cloud using the microservices indicated.
 
+Attached to this repository is the file TestThreadJmeter.jmx that setups the environment to run the stress test under jmeter.
+
