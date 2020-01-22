@@ -1,8 +1,12 @@
 
-process.on('exit', (code) => client.quit() );
+// Redis is single threaded then there is no concurrent read/write. If there are 2 client connection sending command to the redis they will be queued.
+// Sharding can be implemented on a redis cluster of n nodes. In our development we have only a redis server that should be hosted on a cloud vm.
+
+process.on('exit', (code) => redisClient.quit() );
 //catches ctrl+c event
 process.on('SIGINT', () => process.exit(2));
 //################################################################################
+const uuidv4 = require('uuid/v4');
 const path = require("path");
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -12,8 +16,26 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 const server = http.Server(app);
 const redis = require("redis"); // redis already installed on local machine
-const {MONGODBCONNECTION} = require("./mongoconnection");
-const mongoClient = require('mongodb');
+const { Worker } = require('worker_threads');
+const redisChunkSize = 10000;
+
+const runService = (workerData)=> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker('./worker.js', { workerData });
+    worker.on('message', resolve);
+    worker.on('error', reject);
+    worker.on('exit', (code) => {
+      if (code !== 0)
+        reject(new Error(`Worker stopped with exit code ${code}`));
+    })
+  })
+}
+
+async function runWorker() {
+  const result = await runService(redisChunkSize);
+  console.log(result);
+}
+
 
 let PORT;
 /* redis installation on ubuntu 18.04
@@ -28,71 +50,28 @@ in order to access the redis server use the following command:
 redis-cli
 */
 
-const client = redis.createClient({detect_buffers: true});
+const redisClient = redis.createClient({detect_buffers: true});
 //  we initially flush the list
-client.del("scorelist");
+redisClient.del("scorelist");
 
 app.use('/', express.static(path.join(__dirname, 'staticfolder')));
-
-
-
-
-
-app.get('/mongo', (req,res,next) => {
-
-
- 
-  mongoClient.connect(MONGODBCONNECTION,{ useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-
-      if (err) res.json(err);                                       
-      const db = client.db('scores');
-      db.createCollection("test", { "capped": true, "size": 100000, "max": 5000},
-      ( err, results)=> {
-
-        client.close();
-        res.json({res:"ok"});
-
-      }
-    );
-})
-
-})
-
-
-
-
-
-
-
-
-
 app.get("/help",(req,res,next ) => {res.json({help:"Thanks for inquiring. please visit algorithmnemesis.com",servingNode:`The serving node in this call is the node listening on port ${PORT}`})});
-
-app.get("/rediskey",(req,res,next ) => {  
-  client.get("diegus1",  (err, reply)=> { 
-    let response = JSON.parse(reply);
-    response.servingNode = `The serving node in this call is the node listening on port ${PORT}`; 
-    res.json(JSON.parse(reply));
-  });   
-});
-
-app.post("/setscore",(req,res,next ) => {
-  const score = req.body.scoredata;
-  client.set("diegus1", JSON.stringify(score));
-  res.json({ok:true, servingNode:`The serving node in this call is the node listening on port ${PORT}` });
-});
 
 app.post("/setscoreinlist",(req,res,next ) => {
   const score = req.body.scoredata;
-  client.lpush("scorelist",JSON.stringify(score));
-  res.json({ok:true});
+  score.uniqueId = uuidv4(); ;
+  redisClient.lpush("scorelist",JSON.stringify(score));
+  redisClient.llen("scorelist",(err,number)=> {
+     if(number === redisChunkSize) runWorker().catch(err => console.error(err))
+     res.json({ok:true,len: number });
+ }) 
+ 
+ 
 });
 
-
-
-//if ( parseInt(process.argv[2])) {
+if ( parseInt(process.argv[2])) {
   PORT = parseInt(process.argv[2]);
-  const listener = server.listen(8000 || 8005, () => {
+  const listener = server.listen(PORT || 6000, () => {
     console.log(`Application worker ${process.pid} started... on port ${listener.address().port} `);
     console.log("############################");
     console.log("The value of NODE_ENV is:",process.env.NODE_ENV);
@@ -103,9 +82,9 @@ app.post("/setscoreinlist",(req,res,next ) => {
   console.log(`This platform is ${process.platform}`);
   console.log(process.env);
 
-//}
+}
 
-//else console.log("Please specify the correct port");
+else console.log("Please specify the correct port");
 
 
 
