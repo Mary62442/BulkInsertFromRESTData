@@ -19,6 +19,20 @@ const redis = require("redis"); // redis already installed on local machine
 const { Worker } = require('worker_threads');
 const redisChunkSize = 5000;
 
+const allowCrossDomain =  (req, res, next) => {
+  let allowedOrigins = process.env.NODE_ENV === "production" ? []  : ['http://localhost:3000'];  
+  let origin = req.headers.origin;
+  if(allowedOrigins.indexOf(origin) > -1) res.setHeader('Access-Control-Allow-Origin', origin); 
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, csrf-token, Custom-Auth-Step1, Custom-Auth-Step2, Custom-Auth-Step3, Custom-Auth-Step4');
+  if ('OPTIONS' == req.method) {res.sendStatus(200); }
+  else { next(); }
+};
+
+app.use(allowCrossDomain);
+
+
 const runService = (workerData)=> {
   return new Promise((resolve, reject) => {
     const worker = new Worker('./worker.js', { workerData });

@@ -1,0 +1,31 @@
+.main-container {
+  min-height:100vh;
+  background:url("assets/background.jpg");
+  text-align:center;
+}
+
+.title {
+  font-size:3rem;
+  color:white;
+  padding:0.5rem 0;
+}
+
+.presentation {
+  font-size:1.5rem;
+  color:white;
+  padding:1rem 0;
+}
+
+.form-component {
+  background-color:white;
+  box-shadow: 0 0 40px rgba(255,255,255,0.3);
+  border-radius:1rem;
+  width:25rem;
+  margin:0 auto;
+  padding:1rem;
+
+  label, input {
+    display:block;
+    text-align:left;
+  }
+}
