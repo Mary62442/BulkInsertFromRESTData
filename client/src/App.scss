@@ -2,6 +2,8 @@
   min-height:100vh;
   background:url("assets/background.jpg");
   text-align:center;
+  box-sizing:border-box;
+  padding:4rem 2rem;
 }
 
 .title {
@@ -20,12 +22,42 @@
   background-color:white;
   box-shadow: 0 0 40px rgba(255,255,255,0.3);
   border-radius:1rem;
-  width:25rem;
+  width:20rem;
   margin:0 auto;
   padding:1rem;
+  box-sizing:border-box;
 
   label, input {
     display:block;
     text-align:left;
+    width:100%;    
   }
+
+  label {
+    padding:0.7rem 0 0.3rem 0;
+  }
+  input {
+    border: 1px solid rgb(173, 173, 173);
+    box-sizing:border-box;
+    padding:0.3rem;
+    border-radius:0.3rem;
+    color:rgb(90, 90, 90);
+  }
+
+  input[type="submit"] {
+    background:linear-gradient(to top left, orange, rgb(207, 0, 145));
+    border:none;
+    border-radius:0.5rem;
+    padding:0.5rem 1rem;
+    margin-top:1rem;
+    text-align:center;
+    color:white;
+    
+  }
+}
+
+.form-error {
+  text-align:left;
+  color:rgb(156, 0, 0);
+  padding:0.2rem 0;
 }

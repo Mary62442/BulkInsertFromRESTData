@@ -11,7 +11,7 @@ function FormComponent({inputs, onFormSubmit, formType}) {
             <div key={i}>
                 <label>{e.label}</label>
                 <input  name = {e.name} type = {e.type} ref={register({ required: true })}/>
-                {errors[e.name] && <p>{e.label} is required</p>}
+                {errors[e.name] && <p className = "form-error">* {e.label} is required</p>}
             </div>            
         )
     });
