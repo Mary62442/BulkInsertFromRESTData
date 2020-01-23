@@ -1,0 +1,16 @@
+{
+  "name": "stresstest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "stresstest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node stresstest.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}

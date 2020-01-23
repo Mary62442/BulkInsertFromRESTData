@@ -11,6 +11,7 @@ mongoClient.connect(MONGODBCONNECTION,{ useNewUrlParser: true, useUnifiedTopolog
     const db = client.db('scores');
     const collection = db.collection('scoredata');
 
+    // it seems important to also test the complete removal of the redis list in order to compensate the time wasted to open mongoconnection.
     
         redisClient.lrange("scorelist", 0, workerData-1,  (err, reply)=> { 
             let scores = reply.map(e => JSON.parse(e));

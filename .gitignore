@@ -2,3 +2,4 @@ mongoconnection.js
 node_modules
 *.log
 .vscode
+stresstest/node_modules
