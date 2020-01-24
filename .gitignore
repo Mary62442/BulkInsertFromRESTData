@@ -1,6 +1,6 @@
-mongoconnection.js
-node_modules
-*.log
+Backend/mongoconnection.js
+Backend/node_modules
+Backend/*.log
 .vscode
-stresstest/node_modules
-client/node_modules
+Backend/stresstest/node_modules
+FrontendReact/node_modules
